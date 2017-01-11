@@ -28,7 +28,7 @@ class Example(QWidget):
 
     def initUI(self):
 
-        self.setGeometry(300, 300, 280, 170)
+        self.setGeometry(400, 200, 1080, 670)
         self.setWindowTitle('Points')
         self.show()
 
@@ -37,11 +37,11 @@ class Example(QWidget):
 
         qp = QPainter()
         qp.begin(self)
-        self.drawPoints(qp)
+        self.drawCircles(qp)
         qp.end()
 
 
-    def drawPoints(self, qp):
+    def drawCircles(self, qp):
 
         qp.setPen(Qt.red)
         size = self.size()
