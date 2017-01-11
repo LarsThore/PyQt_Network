@@ -31,10 +31,10 @@ class Form(QDialog):
 
     def compute(self):
         try:
-            text = self.resultsInput.text()
+            text = self.resultsInput.text()     # grasps the text from the input field
             self.resultsList.append("{0} = <b> {1} </b>".format(text, eval(text)))
         except:
-            print("<font color = red> <b> Invalid Expression! </b> </font>")
+            self.resultsList.append("<font color = red> <b> Invalid Expression! </b> </font>")
 
 
 
