@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt, QRectF
-from PyQt5.QtGui import QPainter, QColor, QPen, QBrush
+from PyQt5.QtGui import QPainter, QColor, QPen, QBrush, QCursor
 from PyQt5.QtWidgets import QWidget, QApplication
 
 import sys
@@ -23,14 +23,19 @@ class drawCircles(QWidget):
         self.setWindowTitle("Circles")
         self.show()
 
+        --- self.surface.clicked.connect(self.paintEvent)    # hier muss eigentlich eine klickbare Oberfläche stehen
+
 
     def paintEvent(self, e):            # Wofür steht das e?
 
         qp = QPainter()
+        position = QCursor.pos()
+
         qp.begin(self)
-        self.draw_circles(qp)
+        self.draw_circle(qp, position)
         # self.draw_rect(qp)
         qp.end()
+
 
 
     def draw_circles(self, qp):
@@ -44,6 +49,16 @@ class drawCircles(QWidget):
             y = np.random.randint(10, size.height()-10)
 
             qp.drawEllipse(x, y, 20.0, 20.0)
+
+    def draw_circle(self, qp, position):
+
+        qp.setBrush(Qt.red)
+        qp.setPen(Qt.red)
+
+
+
+
+
 
 
 
