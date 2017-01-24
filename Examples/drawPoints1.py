@@ -18,7 +18,7 @@ from PyQt5.QtGui import QPainter, QColor, QPen
 from PyQt5.QtCore import Qt
 
 
-class Example(QWidget):
+class Example(QWidget): # allalalallalalalall
 
     def __init__(self):
         super().__init__()
