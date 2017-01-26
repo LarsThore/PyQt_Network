@@ -1,13 +1,12 @@
 from PyQt5.QtCore import Qt, QRectF
-from PyQt5.QtGui import QPainter, QColor, QPen, QBrush, QCursor
-from PyQt5.QtWidgets import QWidget, QApplication
+from PyQt5.QtGui import QColor, QPen, QBrush, QCursor
+from PyQt5.QtWidgets import (QWidget, QApplication, QGraphicsEllipseItem,
+ QGraphicsScene, QGraphicsView)
 
 import sys
 import numpy as np
 
-
 __appname__ = "Draw Circles"
-
 
 class drawCircles(QWidget):
 
@@ -16,26 +15,26 @@ class drawCircles(QWidget):
 
         self.initUI()
 
-
     def initUI(self):
+        # self.setGeometry(400, 200, 1000, 700)
+        # self.setWindowTitle("Circles")
 
-        self.setGeometry(400, 200, 1000, 700)
-        self.setWindowTitle("Circles")
-        self.show()
+        scene = QGraphicsScene()
+        scene.addText("Hello, world!")
 
-        #--- self.surface.clicked.connect(self.paintEvent)    # hier muss eigentlich eine klickbare Oberfläche stehen
+        view = QGraphicsView(scene)
+        # view.show()
 
-
-    def paintEvent(self, e):            # Wofür steht das e?
-
-        qp = QPainter()
-        position = QCursor.pos()
-
-        qp.begin(self)
-        self.draw_circle(qp, position)
-        # self.draw_rect(qp)
-        qp.end()
-
+    # def paintEvent(self, e):            # Wofür steht das e?
+    #
+    #     qp = QGraphicsEllipseItem()
+    #     position = QCursor.pos()
+    #
+    #     qp.setBrush(Qt.red)
+    #     qp.setPen(Qt.red)
+    #     size = self.size()
+    #
+    #     QGraphicsEllipseItem(size.width() / 2, size.height()/2 , 20.0, 20.0)
 
 
     def draw_circles(self, qp):
@@ -49,15 +48,6 @@ class drawCircles(QWidget):
             y = np.random.randint(10, size.height()-10)
 
             qp.drawEllipse(x, y, 20.0, 20.0)
-
-    def draw_circle(self, qp, position):
-
-        qp.setBrush(Qt.red)
-        qp.setPen(Qt.red)
-
-
-
-
 
 
 
