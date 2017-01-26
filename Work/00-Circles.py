@@ -29,10 +29,10 @@ class drawCircles(QWidget):
     def paintEvent(self, e):            # Wofür steht das e?
 
         qp = QPainter()
-        position = QCursor.pos()
+        # position = QCursor.pos()
 
         qp.begin(self)
-        self.draw_circle(qp, position)
+        self.draw_circles(qp)
         # self.draw_rect(qp)
         qp.end()
 
