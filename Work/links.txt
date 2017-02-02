@@ -1,0 +1,11 @@
+Links:
+
+https://www.youtube.com/watch?v=3w-Jgt7sHOk --> Zehn-Finger-Malprogramm mit Multitouch in Python; Code auf dem der Network-Code basiert (vor allem auf der ersten Hälfte des Videos)
+
+http://www.j3l7h.de/videos.html --> Website von J. Loviscach mit hunderten von Videos (u.a. PyQt)
+
+https://deptinfo-ensip.univ-poitiers.fr/ENS/pyside-docs/index.html --> PySide Dokumentation; besser verständlich als PyQt Dokumentation; allerdings Abhängigkeiten anders als bei PyQt
+
+http://pyqt.sourceforge.net/Docs/PyQt5/class_reference.html --> PyQt5 Class Reference; hier kann man alle PyQt Klassen und Abhängigkeiten finden
+
+https://www.youtube.com/channel/UCpjNEyIUW8E8ZQ0JbYA8isw --> Einführung in PyQt über mehrere Videos
