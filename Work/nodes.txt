@@ -1,0 +1,13 @@
+Node positions 
+ 
+x-coordinates 	y-coordinates 
+304	127
+165	295
+363	333
+559	157
+652	283
+293	119
+572	62
+57	489
+44	29
+10	10

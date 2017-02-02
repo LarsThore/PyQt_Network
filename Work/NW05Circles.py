@@ -2,7 +2,7 @@
 
 from PyQt5.QtCore import Qt, QRectF, QEvent
 from PyQt5.QtGui import QColor, QPen, QBrush, QImage, QPainter
-from PyQt5.QtWidgets import QWidget, QApplication, QFileDialog, QLabel
+from PyQt5.QtWidgets import QWidget, QApplication, QFileDialog
 from PyQt5.uic import loadUi
 
 from types import MethodType
@@ -19,16 +19,16 @@ w = loadUi("04-circles.ui")
 img = QImage(w.widget.width(), w.widget.height(), QImage.Format_RGB32)
 img.fill(Qt.white)              # image appears white in the beginning (not black)
 
-################################ set imgpainter ##################################
-node_painter = QPainter()         # painter for painting nodes
-imgpainter = QPainter()            # painter for drawing image
+################################ set painter ##################################
+imgPainter = QPainter()         # first painter
+painter = QPainter()            # second painter
 
 ################################## set pen ####################################
-line_drawer = QPen()            # pen for drawing edges
+line_drawer = QPen()
 line_drawer.setWidth(4)
 
 ############################ set switch and lists #############################
-switch = 0      # switch at 0 for first node, at 1 for second node
+switch = 0      # switch at 0 for first circle, at 1 for second circle
 edge_counter = 0
 
 total_edge_length = 0
@@ -90,15 +90,15 @@ def export_edges():
 def draw_circles(x, y):
     """
     Takes the x and y data of the event (mouse click) and draws a circle with
-    the QPainter 'imgpainter' around that point with the radius (r) 10.
+    the QPainter 'painter' around that point with the radius (r) 10.
     """
     print ( tuple((x, y)) ),
 
     r = 10
-    node_painter.begin(img)          # use first imgpainter to draw on image
-    node_painter.setBrush(Qt.red)
-    node_painter.drawEllipse(x-r, y-r, 2*r, 2*r)    # draw circle (circles are represented as an ellipse)
-    node_painter.end()
+    imgPainter.begin(img)          # use first painter to draw on image
+    imgPainter.setBrush(Qt.red)
+    imgPainter.drawEllipse(x-r, y-r, 2*r, 2*r)    # draw circle (circles are represented as an ellipse)
+    imgPainter.end()
 
 def fill_coordinate_set(x, y):
     """
@@ -120,7 +120,7 @@ def find_closest_midpoint(event):
     for position in midpoints:
         diff0 = abs(position.x() - event.pos().x())
         diff1 = abs(position.y() - event.pos().y())
-        diff_list.append(np.sqrt(diff0**2 + diff1**2))
+        diff_list.append(sum(tuple((diff0, diff1))))
 
     diff_array = np.array(diff_list)
     i = np.argmin(diff_array)
@@ -161,6 +161,7 @@ def draw_line(event):
     another click - to draw a line between those points
     '''
 
+    # end_point = event.pos()
     end_point = find_closest_midpoint(event)
     print ("end")
     if end_point == start_point_list[0]:
@@ -169,12 +170,10 @@ def draw_line(event):
 
     edges.append( tuple((start_point_list[0], end_point_list[0])) )
 
-    # start_point_list[0] = end_point
-
-    node_painter.begin(img)          # use node_painter to draw on image
-    node_painter.setPen(line_drawer)
-    node_painter.drawLine(start_point_list[0], end_point)    # draw line from first circle to second circle
-    node_painter.end()
+    imgPainter.begin(img)          # use first painter to draw on image
+    imgPainter.setPen(line_drawer)
+    imgPainter.drawLine(start_point_list[0], end_point)    # draw line from first circle to second circle
+    imgPainter.end()
 
     calculate_edge_length(end_point_list)
 
@@ -191,37 +190,24 @@ def drawing(self, event):
     if (event.type() == QEvent.MouseButtonPress and
         tuple((event.pos().x(), event.pos().y())) not in coordinate_set):
 
-        try:
-            print (w.comboBox.currentIndex())
-            if w.comboBox.currentIndex() == 0 or w.comboBox.currentIndex() == 1:
-                midpoints.append(event.pos())
-                circle_center = event.pos()
-                x = circle_center.x()
-                y = circle_center.y()
+        midpoints.append(event.pos())
+        circle_center = event.pos()
+        x = circle_center.x()
+        y = circle_center.y()
 
-                draw_circles(x, y)
-                fill_coordinate_set(x, y)       # set value to dictionary key 'circle center'
-                self.update()                   # requests a paint event
+        draw_circles(x, y)
+        fill_coordinate_set(x, y)       # set value to dictionary key 'circle center'
+        self.update()                   # requests a paint event
 
-                w.node_label.setText("Nodes:\n" + str(len(midpoints)))
-            else:
-                raise Exception
-        except Exception:
-            print ("Edge mode - not possible to draw nodes in this mode")
+        w.node_label.setText("Nodes:\n" + str(len(midpoints)))
 
     # True if mouse click happens with cursor on a node (and switch == 0)
     elif (event.type() == QEvent.MouseButtonPress and switch == 0 and
             tuple((event.pos().x(), event.pos().y())) in coordinate_set):
 
-        try:
-            if w.comboBox.currentIndex() == 0 or w.comboBox.currentIndex() == 2:
-                save_starting_point(event)
-                switch = 1
-                print ("switch: ", switch)
-            else:
-                raise Exception
-        except Exception:
-            print ("Node mode - not possible to draw edges in this mode")
+        save_starting_point(event)
+        switch = 1
+        print ("switch: ", switch)
 
     # True if mouse click happens with cursor on a node (and switch == 1)
     elif (event.type() == QEvent.MouseButtonPress and switch == 1 and
@@ -242,9 +228,9 @@ def drawing(self, event):
 
     # True if 'self.update()' is called
     elif event.type() == QEvent.Paint:          # (you're only allowed to draw here (in a paint event) ?)
-        imgpainter.begin(self)                  # use imgpainter to draw image on widget
-        imgpainter.drawImage(0, 0, img)
-        imgpainter.end()
+        painter.begin(self)                     # use second painter to draw image on widget
+        painter.drawImage(0, 0, img)
+        painter.end()
 
     return True                                 # return 'True' so that the event handler
                                                 # knows that the event is completed
@@ -281,8 +267,6 @@ if __name__ == '__main__':
     w.eraseButton.clicked.connect(erase)
     w.Export_Nodes.clicked.connect(export_nodes)
     w.Export_Edges.clicked.connect(export_edges)
-
-    # w.comboBox.currentIndexChanged.connect(w.update())
 
     w.show()
     sys.exit(app.exec_())
