@@ -93,16 +93,6 @@ class Dialog(QDialog):
 
 
 
-
-
-
-
-
-
-
-
-
-
 app = QApplication(sys.argv)
 form = Program()
 form.show()

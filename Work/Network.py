@@ -3,7 +3,7 @@
 from PyQt5.QtCore import Qt, QRectF, QEvent
 from PyQt5.QtGui import QColor, QPen, QBrush, QImage, QPainter
 from PyQt5.QtWidgets import QWidget, QApplication, QFileDialog, QLabel
-from PyQt5.uic import loadUi
+from PyQt5.uic import loadUi 
 
 from types import MethodType
 import sys
