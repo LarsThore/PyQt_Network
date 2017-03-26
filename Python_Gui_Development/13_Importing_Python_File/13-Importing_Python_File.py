@@ -17,7 +17,8 @@ class mainDialog(QDialog, showGUI.Ui_mainDialog):
 
 
     def showMessageBox(self):
-        QMessageBox.information(self, "Hello!", "Hello there, " + self.nameEdit.text())
+        QMessageBox.information(self, "Hello!", "Hello there, " +
+                                self.nameEdit.text())
 
 
 
