@@ -62,9 +62,9 @@ class Main(QMainWindow, pymainWindow.Ui_mainWindow):
             'PyDataManager', 'PyDataManager')
 
         self.addData.clicked.connect(self.add_button_clicked)
+        self.removeRow.clicked.connect(self.remove_row_clicked)
 
         self.load_initial_settings()
-
 
     def load_initial_settings(self):
         '''Loads the initial settings for the application. Sets the mainTable
@@ -92,6 +92,10 @@ class Main(QMainWindow, pymainWindow.Ui_mainWindow):
         address = self.address.text()
         approved = self.approved.isChecked()
 
+        # check if field entry has correct structure
+        if not self.validate_fields():
+            return False
+
         currentRowCount = self.mainTable.rowCount()
 
         self.mainTable.insertRow(currentRowCount)
@@ -111,11 +115,37 @@ class Main(QMainWindow, pymainWindow.Ui_mainWindow):
 
     def remove_row_clicked(self):
         '''Removes the selected row from the mainTable.'''
-        pass
+        # which row has been selected by the user
+        currentRow =self.mainTable.currentRow()
+
+        # if any row is selected
+        if currentRow > -1:
+            # make a tuple because sqlite needs a tuple as input
+            currentUsername = (self.mainTable.item(currentRow, 0).text(), )
+            self.dbCursor.execute('''DELETE FROM Main WHERE username = ?''',
+             currentUsername)
+            self.dbConn.commit()
+            self.mainTable.removeRow(currentRow)
 
     def validate_fields(self):
         '''Validates the QLineEdits based on RegEx '''
-        pass
+        # select one column from the table
+        self.dbCursor.execute('''SELECT username FROM Main''')
+        usernames = self.dbCursor.fetchall()
+        for username_ in usernames:
+            if self.userName.text() in username_[0]:
+                QMessageBox.warning(self,'Warning!','Such username already exists!')
+                return False
+
+        # regaular expression match
+        # ^[2-9] --> begins with a 2, 3, 4, ... or 9
+        # one digit, two digits - three digits - four digits
+        # e.g. 673-734-7384
+        if not re.match('^[2-9]\d{2}-\d{3}-\d{4}', self.phoneNumber.text()):
+            QMessageBox.warning(self, 'Warning!', 'Phone number seems incorrect!')
+            return False
+
+        return True
 
     def import_action_triggered(self):
         '''Database import handler.'''
