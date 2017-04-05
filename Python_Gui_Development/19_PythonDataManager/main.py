@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import *
 
 import re
 import sys
-import os
+import os  
 import logging
 
 from ui_files import pymainWindow
