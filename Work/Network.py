@@ -3,7 +3,7 @@
 from PyQt5.QtCore import Qt, QRectF, QEvent
 from PyQt5.QtGui import QColor, QPen, QBrush, QImage, QPainter
 from PyQt5.QtWidgets import QWidget, QApplication, QFileDialog, QLabel
-from PyQt5.uic import loadUi 
+from PyQt5.uic import loadUi
 
 from types import MethodType
 import sys
@@ -17,14 +17,14 @@ w = loadUi("Network_Gui.ui")
 
 #################### image for saving the picture of circles ##################
 img = QImage(w.widget.width(), w.widget.height(), QImage.Format_RGB32)
-img.fill(Qt.white)              # image appears white in the beginning (not black)
+img.fill(Qt.white)          # image appears white in the beginning (not black)
 
-################################ set imgpainter ##################################
+################################ set imgpainter ###############################
 node_painter = QPainter()         # painter for painting nodes
-imgpainter = QPainter()            # painter for drawing image
+imgpainter = QPainter()            # painter for event_handler image
 
 ################################## set pen ####################################
-line_drawer = QPen()            # pen for drawing edges
+line_drawer = QPen()            # pen for event_handler edges
 line_drawer.setWidth(4)
 
 ############################ set switch and lists #############################
@@ -97,7 +97,8 @@ def draw_circles(x, y):
     r = 10
     node_painter.begin(img)          # use first imgpainter to draw on image
     node_painter.setBrush(Qt.red)
-    node_painter.drawEllipse(x-r, y-r, 2*r, 2*r)    # draw circle (circles are represented as an ellipse)
+    # draw circle (circles are represented as an ellipse)
+    node_painter.drawEllipse(x-r, y-r, 2*r, 2*r)
     node_painter.end()
 
 def fill_coordinate_set(x, y):
@@ -105,8 +106,10 @@ def fill_coordinate_set(x, y):
     Takes the x and y data of the event (mouse click) and fills the set
     'coordinate_set' with all the data points that surround this midpoint
     """
-    for x_distance in range(-10, 11):            # set that will contain all pixels inside the circle
-        for y_distance in range(-10, 11):        # (or still inside a square around the circle center)
+    # set that will contain all pixels inside the circle
+    # (or still inside a square around the circle center)
+    for x_distance in range(-10, 11):
+        for y_distance in range(-10, 11):
             coordinate_set.add(tuple((x + x_distance, y + y_distance)))
 
 def find_closest_midpoint(event):
@@ -173,19 +176,21 @@ def draw_line(event):
 
     node_painter.begin(img)          # use node_painter to draw on image
     node_painter.setPen(line_drawer)
-    node_painter.drawLine(start_point_list[0], end_point)    # draw line from first circle to second circle
+    # draw line from first circle to second circle
+    node_painter.drawLine(start_point_list[0], end_point)
     node_painter.end()
 
     calculate_edge_length(end_point_list)
 
 ############################### main function #################################
 
-def drawing(self, event):
+def event_handler(self, event):
+    print (event)
     print (event.type())
     global switch, edge_counter
 
-    print (event.type() == QEvent.MouseButtonPress and
-            tuple((event.pos().x(), event.pos().y())) not in coordinate_set)
+    # print (event.type() == QEvent.MouseButtonPress and
+    #         tuple((event.pos().x(), event.pos().y())) not in coordinate_set)
 
     # True if mouse click happens with cursor on free surface
     if (event.type() == QEvent.MouseButtonPress and
@@ -200,7 +205,8 @@ def drawing(self, event):
                 y = circle_center.y()
 
                 draw_circles(x, y)
-                fill_coordinate_set(x, y)       # set value to dictionary key 'circle center'
+                # set value to dictionary key 'circle center'
+                fill_coordinate_set(x, y)
                 self.update()                   # requests a paint event
 
                 w.node_label.setText("Nodes:\n" + str(len(midpoints)))
@@ -235,19 +241,21 @@ def drawing(self, event):
 
             edge_counter += 1
             w.edge_label.setText("Edges:\n" + str(edge_counter))
-            w.total_length_label.setText("Total edge length:\n" + str(int(total_edge_length)))
+            w.total_length_label.setText("Total edge length:\
+             \n" + str(int(total_edge_length)))
 
         except ValueError:
             pass
 
     # True if 'self.update()' is called
-    elif event.type() == QEvent.Paint:          # (you're only allowed to draw here (in a paint event) ?)
-        imgpainter.begin(self)                  # use imgpainter to draw image on widget
+    elif event.type() == QEvent.Paint:
+        # use imgpainter to draw image on widget
+        imgpainter.begin(self)
         imgpainter.drawImage(0, 0, img)
         imgpainter.end()
 
-    return True                                 # return 'True' so that the event handler
-                                                # knows that the event is completed
+    return True             # return 'True' so that the event handler
+                            # knows that the event is completed
 
 
 def erase():
@@ -276,7 +284,13 @@ def erase():
 
 
 if __name__ == '__main__':
-    w.widget.event = MethodType(drawing, w.widget)  # ersetzt die Funktion, die die Ereignisse behandelt
+    # ersetzt die Funktion, die die Ereignisse behandelt
+    print (type(w))
+    print (type(w.widget))
+    print (type(w.widget.event))
+    print (MethodType(event_handler, w.widget))
+    print (type(event_handler))
+    w.widget.event = MethodType(event_handler, w.widget)
 
     w.eraseButton.clicked.connect(erase)
     w.Export_Nodes.clicked.connect(export_nodes)
