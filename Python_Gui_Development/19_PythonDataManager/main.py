@@ -10,9 +10,13 @@ import re
 import sys
 import os  
 import logging
+import csv
+import traceback
 
 from ui_files import pymainWindow
 import sqlite3
+import preferences
+import utilities
 
 # set the default path of the application to HOME/AppDataManager directory
 # (soft-coding)
@@ -25,10 +29,10 @@ if not os.path.exists(appDataPath):
     except Exception:
         appDataPath = os.getcwd()
 
-# Logging; format
+# Logging
 logging.basicConfig(filename= appDataPath + 'pydatamanager.log',
-    format = '%(asctime)-15s: %(name)-18s - %(levelname)-8s - %(module)-15s\
-     - %(funcname)-15s - %(lineno)-6d - %(message)s')
+    format = "%(asctime)-15s: %(name)-18s - %(levelname)-8s - %(module)-15s\
+     - %(funcName)-20s - %(lineno)-6d - %(message)s", level = logging.DEBUG)
 
 # define the module name in the basic Configuration
 logger = logging.getLogger(name = 'main-gui')
@@ -48,6 +52,10 @@ class Main(QMainWindow, pymainWindow.Ui_mainWindow):
         super(Main, self).__init__(parent)
         self.setupUi(self)
 
+        bdueivbud
+
+        logger.debug("Application initialized")
+
         # create table in database
         self.dbCursor = self.dbConn.cursor()
         self.dbCursor.execute('''CREATE TABLE IF NOT EXISTS Main(id INTEGER\
@@ -63,6 +71,14 @@ class Main(QMainWindow, pymainWindow.Ui_mainWindow):
 
         self.addData.clicked.connect(self.add_button_clicked)
         self.removeRow.clicked.connect(self.remove_row_clicked)
+
+        self.actionExport.triggered.connect(self.export_action_triggered)
+        self.actionPreferences.triggered.connect(self.preferences_action_triggered)
+        self.actionExit.triggered.connect(self.exit_action_triggered)
+
+        self.showToolbar = utilities.str2bool(self.settings.value(
+         "showToolbar", True))
+        self.mainToolbar.setVisible(self.showToolbar)
 
         self.load_initial_settings()
 
@@ -149,31 +165,96 @@ class Main(QMainWindow, pymainWindow.Ui_mainWindow):
 
     def import_action_triggered(self):
         '''Database import handler.'''
+        # THIS is HOMEWORK
+        # Hint no. 1: read documentation csv.reader
+        # Hint no. 2: there is nothing new
         pass
 
     def export_action_triggered(self):
         '''Database export handler.'''
-        pass
+
+        self.dbCursor.execute("SELECT * FROM Main")
+
+        dbFile = QFileDialog.getSaveFileName(parent = None, caption = " Export\
+         database to a file", directory = ".", filter = "PyDataManager CSV (*.csv)")
+
+        print (dbFile[0])
+        if dbFile[0]:
+            try:
+                with open(dbFile[0], "w", newline = '') as csvFile:
+                    csvWriter = csv.writer(csvFile, delimiter = ',',
+                     quotechar = "\"", quoting = csv.QUOTE_MINIMAL)
+
+                    rows = self.dbCursor.fetchall()
+                    rowCount = len(rows)
+                    for row in rows:
+                        csvWriter.writerow(row)
+
+                    QMessageBox.information(self, __appname__,
+                    'Successfully exported ' + str(rowCount) +
+                    ' rows to a file\n\r' + str(QDir.toNativeSeparators(dbFile[0])))
+
+            except Exception as err:
+                QMessageBox.critical(self, __appname__,
+                 "Error exporting file, error is\n\r" + str(err))
+                logger.critical("Error exporting file; the error is " + str(err)
+                 + ", dbFile[0] is " + str[dbFile[0]])
+                return
 
     def preferences_action_triggered(self):
         '''Fires up the Preferences dialog. '''
-        pass
+
+        dlg = preferences.Preferences(self, showToolbar = self.showToolbar)
+        sig = dlg.checkBoxSig
+
+        sig.connect(self.show_hide_toolbar)
+        dlg.exec_()
+
+    def show_hide_toolbar(self, param):
+        '''Shows / hides main toolbar based on the checkbox value from
+        preferences.'''
+
+        self.mainToolbar.setVisible(param)
+
+        self.settings.setValue("showToolbar", utilities.bool2str(param))
+        # converts to self.settings.setValue("showToolbar", 'True')
 
     def about_action_triggered(self):
         '''Opens the about dialog. '''
+        # HOMEWORK no. 2: write something about yourself and the app
         pass
 
     def exit_action_triggered(self):
         '''Closes the application. '''
-        pass
+        self.close()
 
+    def closeEvent(self, event, *args, **kwargs):
+        '''Overwrite the default close method.'''
 
+        result = QMessageBox.question(self, __appname__,
+         'Are you sure you want to exit?', QMessageBox.Yes | QMessageBox.No,
+         QMessageBox.Yes)
+
+        if result == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
+
+def unhandled_exceptions(type, value, exp_traceback):
+    exception = "".join(traceback.format_exception(type, value, exp_traceback))
+    logger.critical(str(exception))
+    print(exception)
+    print("Process finished with exit code 1")
+    sys.exit(1)
 
 def main():
     QCoreApplication.setApplicationName('PyDataManager')
     QCoreApplication.setApplicationVersion('0.1')
     QCoreApplication.setOrganizationName('PyDataManager')
     QCoreApplication.setOrganizationDomain('pydatamanager.com')
+
+    # overwrite default exception handler
+    sys.excepthook = unhandled_exceptions
 
     app = QApplication(sys.argv)
     form = Main()
