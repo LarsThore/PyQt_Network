@@ -12,9 +12,9 @@ import os
 import logging
 import csv
 import traceback
+import sqlite3
 
 from ui_files import pymainWindow
-import sqlite3
 import preferences
 import utilities
 
@@ -51,8 +51,6 @@ class Main(QMainWindow, pymainWindow.Ui_mainWindow):
     def __init__(self, parent = None):
         super(Main, self).__init__(parent)
         self.setupUi(self)
-
-        bdueivbud
 
         logger.debug("Application initialized")
 

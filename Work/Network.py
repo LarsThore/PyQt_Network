@@ -172,8 +172,6 @@ def draw_line(event):
 
     edges.append( tuple((start_point_list[0], end_point_list[0])) )
 
-    # start_point_list[0] = end_point
-
     node_painter.begin(img)          # use node_painter to draw on image
     node_painter.setPen(line_drawer)
     # draw line from first circle to second circle
