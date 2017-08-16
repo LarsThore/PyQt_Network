@@ -130,7 +130,7 @@ class Main(QMainWindow, pymainWindow.Ui_mainWindow):
     def remove_row_clicked(self):
         '''Removes the selected row from the mainTable.'''
         # which row has been selected by the user
-        currentRow =self.mainTable.currentRow()
+        currentRow = self.mainTable.currentRow()
 
         # if any row is selected
         if currentRow > -1:
